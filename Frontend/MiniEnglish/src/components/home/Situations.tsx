@@ -1,93 +1,119 @@
-import { View, Text, Pressable } from "react-native"
+import { View, Text, Pressable, ScrollView } from "react-native"
 import { StyleSheet } from "react-native"
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState, useEffect } from "react";
+import { Situation } from "@/types/situation";
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 console.log(API_URL)
 
 export default function Situations(){
-  const [situations, setSituations]= useState([]);
+  const [situations, setSituations]= useState<Situation[]>([]);// store situation and using fixed data structure according to db schema
+  const [loading, setLoading]= useState(true);
+  const [error, setError]= useState<string | null>(null);
+
+
 
   useEffect(()=>{
     async function fetchSituations() {
       try{
+        setLoading(true)
       const response= await fetch(`${API_URL}/api/situations`);
 
-      const data= await response.json();
+      if(!response.ok){
+        throw new Error("Failed to fetch situations")
+      }
+
+      const data: Situation[]= await response.json()
 
       setSituations(data);
     }catch (error){
-      console.log("Failed to fetch situation: ", error)
+      console.log("Failed to fetch situation: ", error);
+      setError("Unable to load situations")
+    } finally{
+      setLoading(false);
     }
     }
     fetchSituations()
   },[]);
-    return(
-        <View style={styles.container}>
-            {/* Section Header */}
-            <View>
-                <View>
-                    <MaterialIcons
-                        name= "widgets"
-                        size= {22}
-                        color= "#B52046"
-                    />
-                    <Text style={styles.title}>Daily Situations</Text>
-                </View>
-                <Text style={styles.count}>12 active routines</Text>
-            </View>
+  
+  if(loading){
+    return <Text>Loading...</Text>
+  }
+  if(error){
+    return <Text>{error}</Text>
+  }
+return (
+  // <ScrollView 
+  //   style={styles.container} 
+  //   contentContainerStyle={styles.scrollContent}
+  //   showsVerticalScrollIndicator={false}
+  // >
+  <View style={styles.container}>
+    {/* Section Header */}
+    <View style={styles.sectionHeader}>
+      <View style={styles.titleContainer}>
+        <MaterialIcons
+          name="widgets"
+          size={18}
+          color="#B52046"
+        />
+        <Text style={styles.title}>Daily Situations</Text>
+      </View>
+      <Text style={styles.count}>12 active routines</Text>
+    </View>
 
-             {/* Situation Grid */}
-             <View style={styles.grid}>
-                {situations.map((situation)=>(
-                    <Pressable 
-                    key={situation.id}
-                    onPress={()=>{
-                        router.push({
-                            pathname: '/situation/[id]' as any,
-                            params: {
-                                id: situation.id
-                            },
-                        })
-                    }}
-                    style={[
-                        styles.card,
-                        situation.is_popular && styles.featuredCard
-                    ]}
-                    >
-                        {situation.is_popular && (
-                            <Text style={styles.popular}>
-                                Popular
-                            </Text>
-                        )}
+    {/* Situation Grid */}
+    <View style={styles.grid}>
+      {situations.map((situation) => (
+        <Pressable
+          key={situation.id}
+          onPress={() => {
+            router.push({
+              pathname: '/situation/[id]' as any,
+              params: {
+                id: situation.id.toString(),
+              },
+            });
+          }}
+          style={[
+            styles.card,
+            situation.is_popular === 1 && styles.featuredCard,
+          ]}
+        >
+          {situation.is_popular === 1 && (
+            <Text style={styles.popular}>POPULAR</Text>
+          )}
 
-                        <View style={[
-                            styles.iconCircle,
-                            getIconBackground(situation.background),
-                            situation.is_popular && styles.featuredIconCircle
-                        ]}>
+          <View
+            style={[
+              styles.iconCircle,
+              getIconBackground(situation.background),
+              situation.is_popular === 1 && styles.featuredIconCircle,
+            ]}
+          >
+            <MaterialIcons
+              name={situation.icon as any}
+              size={26}
+              color={situation.is_popular === 1 ? '#FFFFFF' : '#B52046'}
+            />
+          </View>
 
-                            <MaterialIcons
-                                name={situation.icon as any}
-                                size={27}
-                                color={situation.is_popular ? '#FFFFFF':  '#B52046'}
-                            />
-                        </View>
-                        
-                        <Text numberOfLines={1}
-                        style={[
-                            styles.name,
-                            situation.is_popular && styles.featuredName
-                        ]}>
-                            {situation.name}
-                        </Text>
-
-                    </Pressable>
-                ))}
-             </View>
-        </View>
-    )
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.name,
+              situation.is_popular === 1 && styles.featuredName,
+            ]}
+          >
+            {situation.name}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  </View>
+ // </ScrollView>
+);
 }
 
 function getIconBackground(background: string) {
@@ -127,13 +153,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '700',
     color: '#121C2A',
+    letterSpacing: -0.1,
   },
 
   count: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '500',
     color: '#594043',
   },
@@ -146,10 +173,11 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    width: '31.5%',
-    minHeight: 152,
+    width: '31%',
+    aspectRatio: 0.9,
+    minHeight: 110,
     padding: 12,
-    borderRadius: 32,
+    borderRadius: 36,
     backgroundColor: '#FFFFFF',
 
     alignItems: 'center',
@@ -158,11 +186,11 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 2,
+    elevation: 1,
 
     position: 'relative',
     overflow: 'hidden',
@@ -198,13 +226,13 @@ const styles = StyleSheet.create({
   name: {
     width: '100%',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#121C2A',
   },
 
   featuredCard: {
-    backgroundColor: '#FFE1E7',
+    backgroundColor: '#FDE8EC',
   },
 
   featuredIconCircle: {
@@ -218,11 +246,12 @@ const styles = StyleSheet.create({
 
   popular: {
     position: 'absolute',
-    top: 7,
+    top: 4,
     right: 8,
 
     fontSize: 10,
     fontWeight: '700',
     color: '#B52046',
+    letterSpacing: -0.2,
   },
 });
