@@ -39,8 +39,36 @@ export type PhraseAlternative = {
   sort_order: number;
 };
 
+export type TranslationResult = {
+  naturalEnglish: string;
+  tone: string;
+  alternatives: {
+    english: string;
+    description: string;
+  }[];
+  evenMoreNatural: string;
+  hindiEquivalent: string;
+  whyBetter: string;
+  mindsetTip: string;
+};
+
+export type SavedPhrase = {
+  id: string;
+  originalText: string;
+  naturalEnglish: string;
+  tone: string;
+  category: string,
+  alternatives: {
+    english: string;
+    description: string;
+  }[];
+  savedAt: string;
+};
+
+
 
 // share both types phrase and PhraseAlternative
 export type PhraseDetail = Phrase & {
   alternativeRows: PhraseAlternative[];
 };
+

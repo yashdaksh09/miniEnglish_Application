@@ -31,6 +31,14 @@ export default function RootLayout() {
         <Stack.Screen name='phrase/[id]'
           options={{headerShown: false}}
         />
+        <Stack.Screen
+          name="phrase-upgrade/[id]"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+        name="voice-practice/[id]"
+        options={{ headerShown: false }}
+      />
       </Stack>
     </ThemeProvider>
   );

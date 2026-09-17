@@ -16,6 +16,7 @@ export default function PhraseDetailScreen(){
 
     const [phrase, setPhrase]= useState<PhraseDetail | null>(null);
     const [loading, setLoading]= useState(true);
+    const [isFavorite, setIsFavorite]= useState(false);
 
     useEffect(()=>{
         async function  fetchPhrase() {
@@ -40,6 +41,24 @@ export default function PhraseDetailScreen(){
         fetchPhrase()
     },[id])
 
+   useEffect(() => {
+  if (!id) return;
+
+  const loadFavorite = async () => {
+    try {
+      const key = `favorite_phrase_${id}`;
+      const savedFavorite = await AsyncStorage.getItem(key);
+
+      console.log('Favorite loaded:', key, savedFavorite);
+
+      setIsFavorite(savedFavorite === 'true');
+    } catch (error) {
+      console.error('Error loading favorite:', error);
+    }
+  };
+
+  loadFavorite();
+}, [id]);
 return (
   <SafeAreaView style={styles.container} edges={['top']}>
     <HomeHeader subtitle="Phrase Detail" />
@@ -67,11 +86,27 @@ return (
               </Text>
             </View>
 
-            <Pressable style={styles.favoriteButton}>
+            <Pressable style={styles.favoriteButton}
+            onPress={async()=>{
+                const newFavoriteState= !isFavorite;
+                setIsFavorite(newFavoriteState);
+                  console.log( 'Favorite saved:', id,newFavoriteState
+      );
+
+                try{
+                    await AsyncStorage.setItem(
+                        `favorite_phrase_${id}`,
+                        String(newFavoriteState)
+                    );
+                }catch(error){
+                    console.error("Error saving favorite:", error);
+                }
+            }}
+            >
               <MaterialIcons
-                name="favorite-border"
+                name={isFavorite ? "favorite": "favorite-border"}
                 size={23}
-                color="#B52046"
+                color={isFavorite ?"#B52046": "#8D7072"}
               />
             </Pressable>
           </View>
