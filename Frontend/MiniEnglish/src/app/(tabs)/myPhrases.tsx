@@ -21,6 +21,7 @@ type SavedPhrase = {
   originalText: string;
   naturalEnglish: string;
   tone: string;
+  category: string;
   alternatives: {
     english: string;
     description: string;
@@ -30,6 +31,16 @@ type SavedPhrase = {
 
 export default function MyPhrases() {
   const [savedPhrases, setSavedPhrases] = useState<SavedPhrase[]>([]);
+  const [selectedCategory, setSelectedCategory]= useState('All');
+
+
+  // filter logic
+  const filteredPhrases =
+  selectedCategory === 'All'
+    ? savedPhrases
+    : savedPhrases.filter(
+        (phrase) => phrase.category === selectedCategory
+      );
 
   useFocusEffect(
     useCallback(() => {
@@ -141,46 +152,94 @@ export default function MyPhrases() {
           </View>
         </View>
 
-        {/* Filters */}
+        {/* Filters -- todo:--> will be change in future. convert to array all fileters value*/}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterContent}
         >
-          <Pressable style={styles.activeFilter}>
-            <Text style={styles.activeFilterText}>
+          <Pressable style={selectedCategory=== 'All' ? styles.activeFilter : styles.filter}
+          onPress={()=> setSelectedCategory('All')}
+          >
+            <Text style={
+              selectedCategory === 'All'
+              ? styles.activeFilter
+              : styles.filter
+            }>
               All ({savedPhrases.length})
             </Text>
           </Pressable>
 
-          <Pressable style={styles.filter}>
-            <Text style={styles.filterText}>
-              🌳 Park
+          <Pressable style={
+            selectedCategory=== 'Park'
+            ? styles.activeFilter
+            : styles.filter
+          } 
+            onPress={()=> setSelectedCategory('Park')}
+          >
+            <Text style={
+              selectedCategory === 'Park'
+              ? styles.activeFilterText
+              : styles.filterText
+            }>
+              🌳Park
             </Text>
           </Pressable>
 
-          <Pressable style={styles.filter}>
-            <Text style={styles.filterText}>
+          <Pressable style={
+            selectedCategory === 'Breakfast'
+            ? styles.activeFilter
+            : styles.filter
+          }
+          onPress={()=> setSelectedCategory('Breakfast')}
+          >
+            <Text style={
+              selectedCategory === 'Breakfast'
+              ? styles.activeFilterText
+              : styles.filterText
+            }>
               🥣 Breakfast
             </Text>
           </Pressable>
 
-          <Pressable style={styles.filter}>
-            <Text style={styles.filterText}>
+          <Pressable style={
+            selectedCategory === 'Manners'
+            ? styles.activeFilter
+            : styles.filter
+          }
+          onPress={()=> setSelectedCategory('Manners')}
+          >
+            <Text style={
+              selectedCategory === 'Manners'
+              ? styles.activeFilterText
+              : styles.filterText
+            }>
               🧸 Manners
             </Text>
           </Pressable>
 
-          <Pressable style={styles.filter}>
-            <Text style={styles.filterText}>
+          <Pressable style={
+            selectedCategory === 'Bedtime'
+            ? styles.activeFilter
+            : styles.filter
+          }
+          onPress={()=> setSelectedCategory('Bedtime')}
+          >
+            <Text style={
+              selectedCategory === 'Bedtime'
+              ? styles.activeFilterText
+              : styles.filterText
+            }>
               🌙 Bedtime
             </Text>
           </Pressable>
         </ScrollView>
 
+
+
         {/* Saved Phrase Cards */}
         <View style={styles.phrasesList}>
-          {savedPhrases.map((phrase) => (
+          {filteredPhrases.map((phrase) => (
             <View
               key={phrase.id}
               style={styles.phraseCard}
@@ -196,7 +255,7 @@ export default function MyPhrases() {
                 <View style={styles.phraseMeta}>
                   <View style={styles.categoryBadge}>
                     <Text style={styles.categoryText}>
-                      Hindi to English
+                      {phrase.category}
                     </Text>
                   </View>
 

@@ -9,8 +9,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import * as Speech from 'expo-speech';
+import {
+  useAudioRecorder,
+  AudioModule,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  RecordingPresets,
+} from 'expo-audio';
 
 type PracticeState = 'ready' | 'recording' | 'feedback';
 
@@ -38,9 +46,79 @@ export default function VoicePractice() {
   const phrase = id || '';
   const practicePhrase = naturalEnglish || phrase;
 
-  const [practiceState, setPracticeState] =
-    useState<PracticeState>('ready');
+  const [practiceState, setPracticeState] =useState<PracticeState>('ready');
+  const [recordingUri, setRecordingUri] = useState<string | null>(null);
+  const [recordingDuration, setRecordingDuration]= useState(0);
+  const recordingStartTime= useRef<number |null>(null);
+  const recorder= useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const player = useAudioPlayer(recordingUri);
+  const playerStatus = useAudioPlayerStatus(player);
 
+   useEffect(()=>{
+    {console.log('UI recordingDuration -->', recordingDuration)};
+  }, [recordingDuration]);
+
+
+  //Permission Voice Recorder Fuction
+
+  const requestMicrophonePermission= async()=>{
+    const status= await AudioModule.requestRecordingPermissionsAsync();
+
+    if(!status.granted){
+      console.log("Microphone permission denied");
+      return false;
+    }
+    return true;
+  }
+
+  const startRecording = async () => {
+  try {
+    const permission =
+      await AudioModule.requestRecordingPermissionsAsync();
+
+    if (!permission.granted) {
+      console.log('Microphone permission denied');
+      return;
+    }
+
+    await recorder.prepareToRecordAsync();
+    recorder.record();
+    recordingStartTime.current= Date.now(); //push current time in recordingStartTime
+
+
+    setPracticeState('recording');
+  } catch (error) {
+    console.error('Start recording error:', error);
+  }
+};
+
+//stop recording + save recording fucntion
+  const stopRecording = async () => {
+  try {
+    await recorder.stop();
+    const durationMs= Date.now()-(recordingStartTime.current ?? Date.now());
+
+    const durationSeconds= Math.floor(durationMs / 1000);
+    console.log('Duration MS -->', durationMs);
+console.log('Duration Seconds -->', durationSeconds);
+// just for debugging and check how come actual output
+    setRecordingDuration(durationSeconds);
+    console.log('State value before render -->', durationSeconds);
+
+    const uri = recorder.uri;
+    console.log(uri)
+    setRecordingUri(uri);
+    setRecordingDuration(recorder.currentTime);
+
+
+
+    
+
+    setPracticeState('feedback');
+  } catch (error) {
+    console.error('Stop recording error:', error);
+  }
+};
   const speakPhrase = () => {
     Speech.stop();
 
@@ -133,15 +211,17 @@ export default function VoicePractice() {
 
         {/* State Switcher */}
         <View style={styles.stateSwitcher}>
-          <Pressable
+          <View
             style={[
               styles.stateTab,
               practiceState === 'ready' &&
                 styles.activeStateTab,
             ]}
-            onPress={() =>
-              setPracticeState('ready')
-            }
+
+            // not using
+            // onPress={() =>
+            //   setPracticeState('ready')
+            // }
           >
             <Text
               style={[
@@ -152,17 +232,17 @@ export default function VoicePractice() {
             >
               1. Ready
             </Text>
-          </Pressable>
+          </View>
 
-          <Pressable
+          <View
             style={[
               styles.stateTab,
               practiceState === 'recording' &&
                 styles.activeStateTab,
             ]}
-            onPress={() =>
-              setPracticeState('recording')
-            }
+            // onPress={() =>
+            //   setPracticeState('recording')
+            // }
           >
             <Text
               style={[
@@ -173,17 +253,17 @@ export default function VoicePractice() {
             >
               2. Recording
             </Text>
-          </Pressable>
+          </View>
 
-          <Pressable
+          <View
             style={[
               styles.stateTab,
               practiceState === 'feedback' &&
                 styles.activeStateTab,
             ]}
-            onPress={() =>
-              setPracticeState('feedback')
-            }
+            // onPress={() =>
+            //   setPracticeState('feedback')
+            // }
           >
             <Text
               style={[
@@ -194,7 +274,7 @@ export default function VoicePractice() {
             >
               3. Feedback
             </Text>
-          </Pressable>
+          </View>
         </View>
 
         {/* Target Phrase */}
@@ -274,9 +354,8 @@ export default function VoicePractice() {
 
                 <Pressable
                   style={styles.bigMicButton}
-                  onPress={() =>
-                    setPracticeState('recording')
-                  }
+                  onPress={startRecording}
+                
                 >
                   <MaterialIcons
                     name="mic"
@@ -340,9 +419,7 @@ export default function VoicePractice() {
 
               <Pressable
                 style={styles.finishButton}
-                onPress={() =>
-                  setPracticeState('feedback')
-                }
+                onPress={stopRecording}
               >
                 <View style={styles.stopSquare} />
 
@@ -373,21 +450,23 @@ export default function VoicePractice() {
                 </View>
               </View>
 
+{/* // Pleay Recording button section */}
               <View style={styles.playbackCard}>
                 <Pressable
                   style={styles.playRecordingButton}
                   onPress={() => {
-                    Speech.stop();
-
-                    Speech.speak(phrase, {
-                      language: 'en-US',
-                      rate: 0.85,
-                      pitch: 1.0,
-                    });
+                    if (recordingUri) {
+                      if (player.playing) {
+                        player.pause();
+                      } else {
+                        player.seekTo(0); // start from first
+                        player.play();
+                      }
+                    }
                   }}
                 >
                   <MaterialIcons
-                    name="play-arrow"
+                    name={playerStatus.playing ? 'pause': 'play-arrow'}
                     size={22}
                     color="#FFFFFF"
                   />
@@ -398,9 +477,16 @@ export default function VoicePractice() {
                     <Text style={styles.voiceLabel}>
                       Mommy's Voice
                     </Text>
-
+                  
                     <Text style={styles.voiceDuration}>
-                      00:03
+                      {/* MM:SS logic */}
+                     {Math.floor(recordingDuration / 60)
+                      .toString()
+                      .padStart(2, '0')}
+                      :
+                      {Math.floor(recordingDuration % 60)
+                        .toString()
+                        .padStart(2, '0')}
                     </Text>
                   </View>
 
@@ -415,9 +501,10 @@ export default function VoicePractice() {
               <View style={styles.reviewButtons}>
                 <Pressable
                   style={styles.recordAgainButton}
-                  onPress={() =>
+                  onPress={() =>{
+                    setRecordingUri(null); // if new recording so remove old recording from state.
                     setPracticeState('ready')
-                  }
+                  }}
                 >
                   <Text style={styles.recordAgainText}>
                     Record Again

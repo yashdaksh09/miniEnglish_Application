@@ -90,6 +90,21 @@ return (
             onPress={async()=>{
                 const newFavoriteState= !isFavorite;
                 setIsFavorite(newFavoriteState);
+                // if phrase not availble so favriote fuctionatly not working because if not avaible phrase so favriote icon not will be show and not give error
+                if(!phrase){
+                  return;
+                }
+
+                if(newFavoriteState){
+                  const savedPhrase= {
+                    id: `phrase-${phrase.id}`,
+                    originalText: phrase.hindi_text,
+                    naturalEnglish: phrase.better_english ?? phrase.english_text,
+                    tone: 'Gentle & Clear',
+                    category: 'Park',
+                    
+                  }
+                }
                   console.log( 'Favorite saved:', id,newFavoriteState
       );
 

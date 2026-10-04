@@ -4,6 +4,8 @@ export type Situation={
     slug: string;
     icon: string | null;
     image_url: string | null;
+    description: string | null;
+    search_keywords: string | null;
     background: string;
     is_popular: number
 }
