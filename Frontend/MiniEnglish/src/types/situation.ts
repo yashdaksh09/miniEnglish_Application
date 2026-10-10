@@ -15,6 +15,7 @@ export type Section = {
   situation_id: number;
   name: string;
   description: string;
+  tip_description: string | null;
   sort_order: number;
 };
 

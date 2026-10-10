@@ -2,9 +2,10 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from 'react-native';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter, useSegments } from 'expo-router';
-import { getAuthtoken } from '@/utils/authStorage';
+import { getCurrentUser } from '@/utils/authApi';
+import { removeAuthToken } from '@/utils/authStorage';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 
 SplashScreen.preventAutoHideAsync();
@@ -18,20 +19,20 @@ export default function RootLayout() {
   useEffect(()=>{
     const checkAuth = async()=>{
       try{
-        const token= await getAuthtoken();
-
         const currentGroup= segments[0];
+        const user= await getCurrentUser();
 
-        if(!token && currentGroup !== '(auth)'){
+        if(!user && currentGroup !== '(auth)'){
           router.replace('/login');
           return
         }
 
-        if(token && currentGroup === '(auth)'){
+        if(user && currentGroup === '(auth)'){
           router.replace('/(tabs)');
         }
       }catch(error){
         console.error('Error checking auth:', error);
+        // await removeAuthToken()
       }finally{
         setCheckingAuth(false)
       }
@@ -56,6 +57,10 @@ export default function RootLayout() {
         options={{headerShown: false}}
         />
         <Stack.Screen
+        name='(auth)/signup'
+        options={{headerShown: false}}
+        />
+        <Stack.Screen
           name="(tabs)"
           options={{ headerShown: false }}
         />
@@ -76,6 +81,10 @@ export default function RootLayout() {
         />
         <Stack.Screen
         name="voice-practice/[id]"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="profile/settings"
         options={{ headerShown: false }}
       />
       </Stack>

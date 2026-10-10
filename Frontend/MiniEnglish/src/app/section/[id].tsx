@@ -10,8 +10,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Speech from 'expo-speech';
 
 import HomeHeader from '@/components/home/HomeHeader';
+import UniversalLoader from '@/components/UniversalLoader';
 import { Phrase } from '@/types/situation';
 import PhraseCard from '../situation/PhraseCard';
 
@@ -27,6 +29,10 @@ export default function SectionScreen() {
 
   const [phrases, setPhrases] = useState<Phrase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectionTip, setSectionTip]= useState('');
+
+
+
 
   const onBack = () => {
     router.back();
@@ -43,10 +49,33 @@ export default function SectionScreen() {
   const onAddAllPress = () => {
     console.log('Add all press');
   };
+// fetch mommy section tip
+useEffect(()=>{
+  async function fetchSection() {
+    try{
 
+      const resposne= await fetch(`${API_URL}/api/situations/sections/${id}`);
+
+      if(!resposne.ok){
+        throw new Error("Failed to fetch section tip");
+      }
+
+      const data= await resposne.json()
+
+      setSectionTip(data.tip_description ?? '');
+    }catch(error){
+      console.error('Error fetching section tip:', error);  
+      setSectionTip('') // if error in this api so pass the empty 
+    }
+  }
+  fetchSection()
+}, [id])
+
+// load phrases
   useEffect(() => {
     async function fetchPhrases() {
       try {
+        console.log('🔄 Section loading started');
         const response = await fetch(
           `${API_URL}/api/phrases/section/${id}`
         );
@@ -59,10 +88,12 @@ export default function SectionScreen() {
 
         console.log('Phrases API data:', data);
 
+        await new Promise(resolve => setTimeout(resolve, 1500));
         setPhrases(data);
       } catch (error) {
         console.error('Error fetching phrases:', error);
       } finally {
+        console.log('✅ Section loading finished');
         setLoading(false);
       }
     }
@@ -70,7 +101,21 @@ export default function SectionScreen() {
     fetchPhrases();
   }, [id]);
 
+
+  if (loading) {
   return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <HomeHeader subtitle="My Phrases" />
+      <UniversalLoader
+        message="Loading phrases for this moment…"
+        variant="fullscreen"
+      />
+    </SafeAreaView>
+  );
+}
+  return (
+    
+
     <SafeAreaView style={styles.container} edges={['top']}>
       
       {/* Existing common header */}
@@ -127,7 +172,7 @@ export default function SectionScreen() {
 
             <View style={styles.subBannerTexts}>
               <Text style={styles.subBannerTitle}>
-                Park Routine Phrases
+                {name? `${name} Phrases`: 'Section Phrases'}
               </Text>
 
               <Text style={styles.subBannerSubtitle}>
@@ -146,11 +191,7 @@ export default function SectionScreen() {
 
         {/* Phrase List */}
         <View style={styles.phrasesList}>
-          {loading ? (
-            <Text style={styles.loadingText}>
-              Loading phrases...
-            </Text>
-          ) : (
+          {
             phrases.map((phrase) => (
               <Pressable
                 key={phrase.id}
@@ -180,7 +221,17 @@ export default function SectionScreen() {
                   
                   <Pressable
                     style={styles.actionBtn}
-                    onPress={() => onAudioPress(phrase)}
+                    onPress={() =>{
+                      Speech.stop()
+
+                      Speech.speak(
+                        phrase.better_english ?? phrase.english_text,{
+                          language: 'en-US',
+                          rate: 0.85,
+                          pitch: 1.0
+                        }
+                      )
+                    }}
                   >
                     <MaterialIcons
                       name="volume-up"
@@ -203,7 +254,7 @@ export default function SectionScreen() {
                 </View>
               </Pressable>
             ))
-          )}
+          }
         </View>
 
         {/* Mommy Tip */}
@@ -217,13 +268,11 @@ export default function SectionScreen() {
 
           <View style={styles.tipTextContainer}>
             <Text style={styles.tipTitle}>
-              Mommy Tip for Park Play
+             {name ? `Mommy Tip for ${name}`: 'Mommy Tip' }
             </Text>
 
             <Text style={styles.tipDescription}>
-              Repeat phrases like "Hold my hand" while physically
-              holding their hand so your toddler naturally pairs
-              the touch with the English phrase.
+              {sectionTip || 'A tip for this section will be availble soon.'}
             </Text>
           </View>
         </View>

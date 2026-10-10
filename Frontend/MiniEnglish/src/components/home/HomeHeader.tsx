@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 type HomeHeaderProps = {
   subtitle: string;
@@ -24,7 +26,13 @@ export default function HomeHeader({ subtitle }: HomeHeaderProps) {
         <Text style={styles.notification}>🔔</Text>
 
         <View style={styles.profile}>
-          <Text style={styles.profileText}>M</Text>
+          <Pressable 
+          accessibilityRole='button'
+          accessibilityLabel='Open profile settings'
+          onPress={()=> router.push('/profile/settings')}
+          >
+          <MaterialIcons name="person" size={22} style={{color: "white"}} />
+          </Pressable>
         </View>
       </View>
     </View>

@@ -17,6 +17,36 @@ export default function PhraseDetailScreen(){
     const [phrase, setPhrase]= useState<PhraseDetail | null>(null);
     const [loading, setLoading]= useState(true);
     const [isFavorite, setIsFavorite]= useState(false);
+    const [situationName, setSituationName]= useState('');
+
+    useEffect(()=>{
+      if(!phrase?.section_id) return;
+
+      async function fetchBreadcrumb() {
+        try{
+
+          const sectionResponse= await fetch(`${API_URL}/api/situations/sections/${phrase.section_id}`);
+
+          if(!sectionResponse.ok){
+            throw Error('Failed to fetch section');
+          }
+
+          const sectionData= await sectionResponse.json();
+
+          const situationResponse= await fetch(`${API_URL}/api/situations/${sectionData.situation_id}`)
+          
+            if (!situationResponse.ok) {
+              throw new Error('Failed to fetch situation');
+            }
+
+            const situationData = await situationResponse.json();
+            setSituationName(situationData.name ?? '');
+        }catch(error){
+          console.error('Error fetching breadcrumb:', error)
+        }
+      }
+      fetchBreadcrumb()
+    },[phrase?.section_id])
 
     useEffect(()=>{
         async function  fetchPhrase() {
@@ -82,7 +112,7 @@ return (
               />
 
               <Text style={styles.breadcrumbText}>
-                Park & Outdoor Routine
+               {situationName || 'Situation'}
               </Text>
             </View>
 

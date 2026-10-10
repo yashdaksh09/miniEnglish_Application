@@ -76,7 +76,7 @@ async function getSituationSections(req, res) {
     try{
         const {id}= req.params;
 
-        const [rows]= await pool.query(`SELECT id, situation_id, name, description, sort_order FROM situation_sections WHERE situation_id=? AND is_active= TRUE ORDER BY sort_order ASC`, [id])
+        const [rows]= await pool.query(`SELECT id, situation_id, name, description, tip_description, sort_order FROM situation_sections WHERE situation_id=? AND is_active= TRUE ORDER BY sort_order ASC`, [id])
 
         if(rows.length=== 0){
               return res.status(404).json({
@@ -92,8 +92,44 @@ async function getSituationSections(req, res) {
         })
     }
 }
+
+async function getSectionById(req, res) {
+    try{
+
+        const {id}= req.params;
+
+        const [rows]= await pool.query(`
+            
+            SELECT id,
+            situation_id,
+            name,
+            description,
+            tip_description,
+            sort_order
+            FROM situation_sections
+            WHERE id=? AND is_active=TRUE
+            `, [id]);
+
+            if(rows.length===0){
+                return res.status(404).json({
+                    message: "Section not found"
+                });
+            }
+
+            res.json(rows[0]);
+    }catch(error){
+        console.error("Error fetching section:", error);
+
+        res.status(500).json({
+            message: "Failed to fetch section",
+            error: error.message
+        })
+    }
+}
+
 module.exports= {
     getSituations,
     getSituationById,
-    getSituationSections
+    getSituationSections,
+    getSectionById
 };

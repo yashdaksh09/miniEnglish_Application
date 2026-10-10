@@ -19,7 +19,7 @@ import {
   useAudioPlayerStatus,
   RecordingPresets,
 } from 'expo-audio';
-
+import HomeHeader from "@/components/home/HomeHeader";
 type PracticeState = 'ready' | 'recording' | 'feedback';
 
 export default function VoicePractice() {
@@ -134,56 +134,7 @@ console.log('Duration Seconds -->', durationSeconds);
       style={styles.container}
       edges={['top']}
     >
-      {/* Top Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <MaterialIcons
-              name="chevron-left"
-              size={28}
-              color="#121C2A"
-            />
-          </Pressable>
-
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>
-              🐰
-            </Text>
-          </View>
-
-          <View>
-            <Text style={styles.headerTitle}>
-              Voice Practice
-            </Text>
-
-            <Text style={styles.headerSubtitle}>
-              Practice Studio
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.headerRight}>
-          <Pressable style={styles.headerIcon}>
-            <MaterialIcons
-              name="notifications-none"
-              size={25}
-              color="#594043"
-            />
-          </Pressable>
-
-          <View style={styles.profileCircle}>
-            <MaterialIcons
-              name="person-outline"
-              size={21}
-              color="#FFFFFF"
-            />
-          </View>
-        </View>
-      </View>
-
+        <HomeHeader subtitle="Voice Practice" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}

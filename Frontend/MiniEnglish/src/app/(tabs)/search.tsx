@@ -8,10 +8,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 import type { Situation } from '@/types/situation';
+import HomeHeader from '@/components/home/HomeHeader';
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -106,45 +108,13 @@ export default function SearchScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
+      <HomeHeader subtitle="Search" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.logoPlaceholder}>
-              <Text style={styles.logoEmoji}>🐰</Text>
-            </View>
-
-            <View>
-              <Text style={styles.appName}>MiniEnglish</Text>
-              <Text style={styles.headerSubtitle}>
-                Search Routines
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.headerRight}>
-            <Pressable style={styles.headerIconButton}>
-              <MaterialIcons
-                name="notifications-none"
-                size={24}
-                color="#594043"
-              />
-            </Pressable>
-
-            <View style={styles.profileCircle}>
-              <MaterialIcons
-                name="person-outline"
-                size={20}
-                color="#FFFFFF"
-              />
-            </View>
-          </View>
-        </View>
-
+        
         {/* Intro */}
         <View style={styles.intro}>
           <View style={styles.titleRow}>
@@ -434,7 +404,7 @@ export default function SearchScreen() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

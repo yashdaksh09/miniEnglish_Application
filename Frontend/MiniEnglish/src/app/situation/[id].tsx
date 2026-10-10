@@ -2,7 +2,7 @@ import { Text, View, Pressable, ScrollView, Image, StyleSheet,} from 'react-nati
 import { router, useLocalSearchParams } from 'expo-router';
 import { Situation, Section } from '@/types/situation';
 import { MaterialIcons } from '@expo/vector-icons';
-
+import { SafeAreaView } from "react-native-safe-area-context";
 import HomeHeader from '@/components/home/HomeHeader';
 
 import { useEffect, useState } from 'react';
@@ -59,10 +59,10 @@ export default function SituationScreen() {
     )
   }
   return (
-  <View style={styles.screen}>
+  <SafeAreaView style={styles.screen}>
 
     {/* Header */}
-    <HomeHeader subtitle="Search Routines" />
+    <HomeHeader subtitle="Situations" />
 
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -359,7 +359,7 @@ export default function SituationScreen() {
       </View>
 
     </ScrollView>
-  </View>
+  </SafeAreaView>
 );
 }
 

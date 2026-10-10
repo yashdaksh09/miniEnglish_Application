@@ -366,43 +366,43 @@ export default function Practice() {
             </View>
 
             <View style={styles.optionsList}>
-  {translationResult.alternatives.map(
-    (alternative, index) => (
-      <Pressable
-        key={`${alternative.english}-${index}`}
-        style={styles.optionCard}
-       onPress={() => {
-        router.push({
-          pathname: '/phrase-upgrade/[id]',
-          params: {
-            id: alternative.english,
-            naturalEnglish: translationResult.naturalEnglish,
-            tone: translationResult.tone,
-            evenMoreNatural: translationResult.evenMoreNatural,
-            hindiEquivalent: translationResult.hindiEquivalent,
-            whyBetter: translationResult.whyBetter,
-            mindsetTip: translationResult.mindsetTip,
-    },
-  });
-}}
-      >
-        <View style={styles.optionLeft}>
-          <View style={styles.optionDot} />
+                {translationResult.alternatives.map(
+                  (alternative, index) => (
+                    <Pressable
+                      key={`${alternative.english}-${index}`}
+                      style={styles.optionCard}
+                    onPress={() => {
+                      router.push({
+                        pathname: '/phrase-upgrade/[id]',
+                        params: {
+                          id: alternative.english,
+                          naturalEnglish: translationResult.naturalEnglish,
+                          tone: translationResult.tone,
+                          evenMoreNatural: translationResult.evenMoreNatural,
+                          hindiEquivalent: translationResult.hindiEquivalent,
+                          whyBetter: translationResult.whyBetter,
+                          mindsetTip: translationResult.mindsetTip,
+                  },
+                });
+              }}
+              >
+                        <View style={styles.optionLeft}>
+                          <View style={styles.optionDot} />
 
-          <View style={styles.optionTextContainer}>
-            <Text style={styles.optionEnglish}>
-              {alternative.english}
-            </Text>
+                          <View style={styles.optionTextContainer}>
+                            <Text style={styles.optionEnglish}>
+                              {alternative.english}
+                            </Text>
 
-            <Text style={styles.optionDescription}>
-              {alternative.description}
-            </Text>
-          </View>
-        </View>
-      </Pressable>
-    )
-  )}
-</View>
+                            <Text style={styles.optionDescription}>
+                              {alternative.description}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    )
+                  )}
+                </View>
 
             {/* Save */}
             <Pressable

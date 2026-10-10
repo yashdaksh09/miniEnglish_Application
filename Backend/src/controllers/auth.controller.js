@@ -16,7 +16,7 @@ async function signup(req, res) {
 
         if(existingUser.length>0){
             return res.status(409).json({
-                messsage: "Email already registered"
+                message: "Email already registered"
             });
         }
 
@@ -24,8 +24,20 @@ async function signup(req, res) {
 
         const [result]= await pool.query(`INSERT INTO users(name, email, password_hash) VALUES (?,?,?)`, [name, email, passwordHash]);
 
+        const token = jwt.sign(
+            {
+                userId: result.insertId,
+                email
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d"
+            }
+);
+
         res.status(201).json({
             messsage: "User Created Sucessfully",
+            token,
             user: {
                 id: result.insertId,
                 name,

@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
   async function handleLogin() {
     if(!email.trim() || !password){
-      Alert.alert("Missing information", 'Please enter your emai and password');
+      Alert.alert("Missing information", 'Please enter your email and password');
       return
     }
 
@@ -90,7 +90,7 @@ export default function LoginScreen() {
                   style={styles.logo}
                 />
               </View>
-
+              
               <View>
                 <Text style={styles.brandName}>MiniEnglish</Text>
                 <Text style={styles.brandSubtitle}>
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  
+
   loginButtonDisabled: {
   opacity: 0.7,
 },
