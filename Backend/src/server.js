@@ -4,6 +4,7 @@ const situationsRouter= require("./routes/situations.routes");
 const phrasesRoutes= require("./routes/phrases.routes");
 const translateRoutes = require("./routes/translate.routes");
 const authRoutes= require("./routes/auth.routes.js");
+const pool = require("./config/db");
 const app= express();
 app.use(express.json());
 
@@ -23,7 +24,23 @@ app.get("/health", (req, res) => {
   });
 });
 
+app.get("/health/db", async (req, res) => {
+  try {
+    await pool.query("SELECT 1");
 
+    res.status(200).json({
+      status: "ok",
+      database: "connected",
+    });
+  } catch (error) {
+    console.error("Database health check failed:", error.message);
+
+    res.status(503).json({
+      status: "error",
+      database: "disconnected",
+    });
+  }
+});
 
 
 app.listen(PORT, ()=>{
